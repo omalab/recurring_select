@@ -286,7 +286,7 @@ window.RecurringSelectDialog =
       @current_rule.hash.validations.hour_of_day = [] 
       @current_rule.hash.validations.hour_of_day[0] = parseInt($(event.currentTarget).val())
       if @current_rule.hash.validations.hour_of_day[0] < 0 || @current_rule.hash.validations.hour_of_day[0] > 23 || isNaN(@current_rule.hash.validations.hour_of_day[0])
-        @current_rule.hash.validations.hour_of_day[0] = 18      
+        @current_rule.hash.validations.hour_of_day=[]    
       @summaryUpdate()  
 
     minuteOfHourChanged: (event) =>
@@ -296,7 +296,7 @@ window.RecurringSelectDialog =
       @current_rule.hash.validations.minute_of_hour = []
       @current_rule.hash.validations.minute_of_hour[0] = parseInt($(event.currentTarget).val())
       if @current_rule.hash.validations.minute_of_hour[0] < 0 || @current_rule.hash.validations.minute_of_hour[0] > 59 || isNaN(@current_rule.hash.validations.minute_of_hour[0])
-        @current_rule.hash.validations.minute_of_hour[0] = 0
+        @current_rule.hash.validations.minute_of_hour=[]
       @summaryUpdate()              
 
     daysChanged: (event) =>
@@ -363,9 +363,9 @@ window.RecurringSelectDialog =
               </p> 
               <p>
                 #{$.fn.recurring_select.texts["at"]}
-                <input type='text' name='rs_daily_hour_of_day' class='rs_daily_hour_of_day rs_interval' value='18' size='2' />
+                <input type='text' name='rs_daily_hour_of_day' class='rs_daily_hour_of_day rs_interval' size='2' />
                 :
-                <input type='text' name='rs_daily_minute_of_hour' class='rs_daily_minute_of_hour rs_interval' value='00' size='2' />
+                <input type='text' name='rs_daily_minute_of_hour' class='rs_daily_minute_of_hour rs_interval' size='2' />
               </p>                        
             </div>
             <div class='weekly_options freq_option_section'>
@@ -386,9 +386,9 @@ window.RecurringSelectDialog =
               <span style='clear:both; visibility:hidden; height:1px;'>.</span>
               <p>
                 #{$.fn.recurring_select.texts["at"]}
-                <input type='text' name='rs_weekly_hour_of_day' class='rs_weekly_hour_of_day rs_interval' value='18' size='2' />
+                <input type='text' name='rs_weekly_hour_of_day' class='rs_weekly_hour_of_day rs_interval' size='2' />
                 :
-                <input type='text' name='rs_weekly_minute_of_hour' class='rs_weekly_minute_of_hour rs_interval' value='00' size='2' />
+                <input type='text' name='rs_weekly_minute_of_hour' class='rs_weekly_minute_of_hour rs_interval' size='2' />
               </p>                 
             </div>
             <div class='monthly_options freq_option_section'>
@@ -405,9 +405,9 @@ window.RecurringSelectDialog =
               <p class='rs_calendar_week'></p>
               <p>
                 #{$.fn.recurring_select.texts["at"]}
-                <input type='text' name='rs_monthly_hour_of_day' class='rs_monthly_hour_of_day rs_interval' value='18' size='2' />
+                <input type='text' name='rs_monthly_hour_of_day' class='rs_monthly_hour_of_day rs_interval' size='2' />
                 :
-                <input type='text' name='rs_monthly_minute_of_hour' class='rs_monthly_minute_of_hour rs_interval' value='00' size='2' />
+                <input type='text' name='rs_monthly_minute_of_hour' class='rs_monthly_minute_of_hour rs_interval' size='2' />
               </p>               
             </div>
             <div class='yearly_options freq_option_section'>
