@@ -5,17 +5,17 @@
 .rs_dialog_holder { font-size:14px; color:black;
   a {color:black;}
   input[type=button] {
-    font: small/normal Arial,sans-serif;
-    background: #F5F5F5; color: #444; border: 1px solid #ccc;
-    font-size: 11px; font-weight: bold; height: 27px; line-height: 27px; outline: none; padding: 0 8px; text-align: center;
+    // font: small/normal Arial,sans-serif;
+    // background: #F5F5F5; color: #444; border: 1px solid #ccc;
+    // font-size: 11px; font-weight: bold; height: 27px; line-height: 27px; outline: none; padding: 0 8px; text-align: center;
 
-    @include rounded_corners(2px);
-    @include gradiant(#f5f5f5, #f1f1f1);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f5f5f5',EndColorStr='#f1f1f1');
+    // @include rounded_corners(2px);
+    // @include gradiant(#f5f5f5, #f1f1f1);
+    // filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f5f5f5',EndColorStr='#f1f1f1');
 
-    &:hover {border-color:#aaa; color:#222; background-color:#f9f9f9; @include shadows(0px, 1px, 2px, rgba(0,0,0,0.2)); }
-    &:focus {border-color:#1E90FF;}
-    &:active {border-color:#1E90FF;}
+    // &:hover {border-color:#aaa; color:#222; background-color:#f9f9f9; @include shadows(0px, 1px, 2px, rgba(0,0,0,0.2)); }
+    // &:focus {border-color:#1E90FF;}
+    // &:active {border-color:#1E90FF;}
   }
 }
 
@@ -42,7 +42,7 @@ select {
 
       .freq_option_section { display:none;
         label { font-weight: bold; }
-        .rs_interval {width:30px; text-align:center;}
+        .rs_interval {width:50px; text-align:center;}
 
         .day_holder { border-left:1px solid #ccc; position:relative; margin-top:5px; height:26px;
           a {display:block; padding:5px 7px; font-size:14px; border-style:solid; border-color:#ccc; border-width:1px 1px 1px 0px; float:left; text-decoration:none; font-weight:bold; @include inset_shadows(0px, 1px, 2px, rgba(0,0,0,0.1)); background-color:#fff;;
@@ -53,7 +53,7 @@ select {
 
         .rs_calendar_day, .rs_calendar_week {
           width:155px;
-          a {display:inline-block; text-align:center; width:15px; padding:5px 3px; font-size:12px; border-style:solid; border-color:#ccc; border-width:1px 1px 1px 1px; margin:-1px 0 0 -1px; line-height:10px; background-color:#fff; font-weight:bold;
+          a {box-sizing: content-box; display:inline-block; text-align:center; width:15px; padding:5px 3px; font-size:12px; border-style:solid; border-color:#ccc; border-width:1px 1px 1px 1px; margin:-1px 0 0 -1px; line-height:10px; background-color:#fff; font-weight:bold;
             &.selected {background-color:#89a; color:#fff; @include gradiant(#9ab, #789); @include inset_shadows(0px, 1px, 2px, rgba(0,0,0,0.2)); text-shadow:0 1px 1px #333;}
             &:hover { cursor:pointer; background-color:#dde;}
           }
@@ -84,11 +84,11 @@ select {
       }
 
       .controls { padding:10px 0px 5px 0px; min-width:170px; text-align:center;
-        input[type=button] { margin:0px 5px; width:70px;
-          &.rs_save {color:#333; }
-          &.rs_cancel {color:#666;}
-          &.disabled {color:#aaa; }
-        }
+        // input[type=button] { margin:0px 5px; width:70px;
+        //   &.rs_save {color:#333; }
+        //   &.rs_cancel {color:#666;}
+        //   &.disabled {color:#aaa; }
+        // }
       }
     }
 

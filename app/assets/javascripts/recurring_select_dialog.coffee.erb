@@ -11,7 +11,7 @@ window.RecurringSelectDialog =
     initDialogBox: ->
       $(".rs_dialog_holder").remove()
 
-      open_in = $("body")
+      open_in = $("#rs-target")
       open_in = $(".ui-page-active") if $(".ui-page-active").length
       open_in.append @template()
       @outer_holder = $(".rs_dialog_holder")
@@ -30,8 +30,7 @@ window.RecurringSelectDialog =
       dialog_height = @content.outerHeight()
       if dialog_height < 80
         dialog_height = 80
-      margin_top = (window_height - dialog_height)/2 - 30
-      margin_top = 10 if margin_top < 10
+      margin_top = 0
       # if dialog_height > window_height - 20
       #   dialog_height = window_height - 20
 
@@ -93,6 +92,15 @@ window.RecurringSelectDialog =
       interval_input = section.find('.rs_daily_interval')
       interval_input.val(@current_rule.hash.interval)
       interval_input.on "change keyup", @intervalChanged
+      hour_of_day_input = section.find('.rs_daily_hour_of_day')
+      if @current_rule.hash.validations? && @current_rule.hash.validations.hour_of_day? && @current_rule.hash.validations.hour_of_day?.length > 0
+        hour_of_day_input.val(@current_rule.hash.validations.hour_of_day[0])
+      hour_of_day_input.on "change keyup", @hourOfDayChanged
+      minute_of_hour_input = section.find('.rs_daily_minute_of_hour')
+      if @current_rule.hash.validations? && @current_rule.hash.validations.minute_of_hour? && @current_rule.hash.validations.minute_of_hour?.length > 0
+        minute_of_hour_input.val(@current_rule.hash.validations.minute_of_hour[0])
+      minute_of_hour_input.on "change keyup", @minuteOfHourChanged
+
       section.show()
 
     initWeeklyOptions: ->
@@ -108,6 +116,14 @@ window.RecurringSelectDialog =
         $(@current_rule.hash.validations.day).each (index, val) ->
           section.find(".day_holder a[data-value='"+val+"']").addClass("selected")
       section.on "click", ".day_holder a", @daysChanged
+      hour_of_day_input = section.find('.rs_weekly_hour_of_day')
+      if @current_rule.hash.validations? && @current_rule.hash.validations.hour_of_day? && @current_rule.hash.validations.hour_of_day?.length > 0
+        hour_of_day_input.val(@current_rule.hash.validations.hour_of_day[0])
+      hour_of_day_input.on "change keyup", @hourOfDayChanged
+      minute_of_hour_input = section.find('.rs_weekly_minute_of_hour')
+      if @current_rule.hash.validations? && @current_rule.hash.validations.minute_of_hour? && @current_rule.hash.validations.minute_of_hour?.length > 0
+        minute_of_hour_input.val(@current_rule.hash.validations.minute_of_hour[0])
+      minute_of_hour_input.on "change keyup", @minuteOfHourChanged
 
       section.show()
 
@@ -128,6 +144,15 @@ window.RecurringSelectDialog =
       section.find(".monthly_rule_type_day").prop("checked", !in_week_mode)
       @toggle_month_view()
       section.find("input[name=monthly_rule_type]").on "change", @toggle_month_view
+      hour_of_day_input = section.find('.rs_monthly_hour_of_day')
+      if @current_rule.hash.validations? && @current_rule.hash.validations.hour_of_day? && @current_rule.hash.validations.hour_of_day?.length > 0
+        hour_of_day_input.val(@current_rule.hash.validations.hour_of_day[0])
+      hour_of_day_input.on "change keyup", @hourOfDayChanged
+      minute_of_hour_input = section.find('.rs_monthly_minute_of_hour')
+      if @current_rule.hash.validations? && @current_rule.hash.validations.minute_of_hour?  && @current_rule.hash.validations.minute_of_hour?.length > 0
+        minute_of_hour_input.val(@current_rule.hash.validations.minute_of_hour[0])
+      minute_of_hour_input.on "change keyup", @minuteOfHourChanged
+
       section.show()
 
     initYearlyOptions: ->
@@ -253,6 +278,26 @@ window.RecurringSelectDialog =
         # $(event.currentTarget).val(@current_rule.hash.interval)
       @summaryUpdate()
 
+    hourOfDayChanged: (event) =>
+      @current_rule.str = null
+      @current_rule.hash ||= {}
+      @current_rule.hash.validations ||= {}
+      @current_rule.hash.validations.hour_of_day = [] 
+      @current_rule.hash.validations.hour_of_day[0] = parseInt($(event.currentTarget).val())
+      if @current_rule.hash.validations.hour_of_day[0] < 0 || @current_rule.hash.validations.hour_of_day[0] > 23 || isNaN(@current_rule.hash.validations.hour_of_day[0])
+        @current_rule.hash.validations.hour_of_day=[]    
+      @summaryUpdate()  
+
+    minuteOfHourChanged: (event) =>
+      @current_rule.str = null
+      @current_rule.hash ||= {}
+      @current_rule.hash.validations ||= {}
+      @current_rule.hash.validations.minute_of_hour = []
+      @current_rule.hash.validations.minute_of_hour[0] = parseInt($(event.currentTarget).val())
+      if @current_rule.hash.validations.minute_of_hour[0] < 0 || @current_rule.hash.validations.minute_of_hour[0] > 59 || isNaN(@current_rule.hash.validations.minute_of_hour[0])
+        @current_rule.hash.validations.minute_of_hour=[]
+      @summaryUpdate()              
+
     daysChanged: (event) =>
       $(event.currentTarget).toggleClass("selected")
       @current_rule.str = null
@@ -298,10 +343,10 @@ window.RecurringSelectDialog =
       <div class='rs_dialog_holder'>
         <div class='rs_dialog'>
           <div class='rs_dialog_content'>
-            <h1>#{$.fn.recurring_select.texts["repeat"]} <a href='#' title='#{$.fn.recurring_select.texts["cancel"]}' Alt='#{$.fn.recurring_select.texts["cancel"]}'></a> </h1>
+            <h1>#{$.fn.recurring_select.texts["repeat"]} <a href='javascript:void(0);' title='#{$.fn.recurring_select.texts["cancel"]}' Alt='#{$.fn.recurring_select.texts["cancel"]}'></a> </h1>
             <p>
               <label for='rs_frequency'>#{$.fn.recurring_select.texts["frequency"]}:</label>
-              <select id='rs_frequency' class='rs_frequency' name='rs_frequency'>
+              <select id='rs_frequency' class='rs_frequency form-control' name='rs_frequency'>
                 <option value='Daily'>#{$.fn.recurring_select.texts["daily"]}</option>
                 <option value='Weekly'>#{$.fn.recurring_select.texts["weekly"]}</option>
                 <option value='Monthly'>#{$.fn.recurring_select.texts["monthly"]}</option>
@@ -310,16 +355,22 @@ window.RecurringSelectDialog =
             </p>
 
             <div class='daily_options freq_option_section'>
-              <p>
+              <p class='form-inline'>
                 #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_daily_interval' class='rs_daily_interval rs_interval' value='1' size='2' />
+                <input type='text' name='rs_daily_interval' class='form-control rs_daily_interval rs_interval' value='1' size='2' />
                 #{$.fn.recurring_select.texts["days"]}
-              </p>
+              </p> 
+              <p class='form-inline'>
+                #{$.fn.recurring_select.texts["at"]}
+                <input type='text' name='rs_daily_hour_of_day' class='rs_daily_hour_of_day rs_interval form-control' size='2' />
+                :
+                <input type='text' name='rs_daily_minute_of_hour' class='form-control rs_daily_minute_of_hour rs_interval' size='2' />
+              </p>                        
             </div>
             <div class='weekly_options freq_option_section'>
-              <p>
+              <p class='form-inline'>
                 #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_weekly_interval' class='rs_weekly_interval rs_interval' value='1' size='2' />
+                <input type='text' name='rs_weekly_interval' class='rs_weekly_interval rs_interval form-control' value='1' size='2' />
                 #{$.fn.recurring_select.texts["weeks_on"]}:
               </p>
               <div class='day_holder'>
@@ -332,11 +383,17 @@ window.RecurringSelectDialog =
       str += "
               </div>
               <span style='clear:both; visibility:hidden; height:1px;'>.</span>
+              <p class='form-inline'>
+                #{$.fn.recurring_select.texts["at"]}
+                <input type='text' name='rs_weekly_hour_of_day' class='form-control rs_weekly_hour_of_day rs_interval' size='2' />
+                :
+                <input type='text' name='rs_weekly_minute_of_hour' class='form-control rs_weekly_minute_of_hour rs_interval' size='2' />
+              </p>                 
             </div>
             <div class='monthly_options freq_option_section'>
-              <p>
+              <p class='form-inline'>
                 #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_monthly_interval' class='rs_monthly_interval rs_interval' value='1' size='2' />
+                <input type='text' name='rs_monthly_interval' class='form-control rs_monthly_interval rs_interval' value='1' size='2' />
                 #{$.fn.recurring_select.texts["months"]}:
               </p>
               <p class='monthly_rule_type'>
@@ -345,11 +402,17 @@ window.RecurringSelectDialog =
               </p>
               <p class='rs_calendar_day'></p>
               <p class='rs_calendar_week'></p>
+              <p class='form-inline'>
+                #{$.fn.recurring_select.texts["at"]}
+                <input type='text' name='rs_monthly_hour_of_day' class='form-control rs_monthly_hour_of_day rs_interval' size='2' />
+                :
+                <input type='text' name='rs_monthly_minute_of_hour' class='form-control rs_monthly_minute_of_hour rs_interval' size='2' />
+              </p>               
             </div>
             <div class='yearly_options freq_option_section'>
-              <p>
+              <p class='form-inline'>
                 #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_yearly_interval' class='rs_yearly_interval rs_interval' value='1' size='2' />
+                <input type='text' name='rs_yearly_interval' class='form-control rs_yearly_interval rs_interval' value='1' size='2' />
                 #{$.fn.recurring_select.texts["years"]}
               </p>
             </div>
@@ -357,8 +420,8 @@ window.RecurringSelectDialog =
               <span></span>
             </p>
             <div class='controls'>
-              <input type='button' class='rs_save' value='#{$.fn.recurring_select.texts["ok"]}' />
-              <input type='button' class='rs_cancel' value='#{$.fn.recurring_select.texts["cancel"]}' />
+              <input type='button' class='rs_save btn btn-default' value='#{$.fn.recurring_select.texts["ok"]}' />
+              <input type='button' class='rs_cancel btn btn-default' value='#{$.fn.recurring_select.texts["cancel"]}' />
             </div>
           </div>
         </div>

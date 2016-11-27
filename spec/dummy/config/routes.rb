@@ -1,4 +1,5 @@
 Dummy::Application.routes.draw do
+  match '/' => 'sample#create_fake_model', :via => :post
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

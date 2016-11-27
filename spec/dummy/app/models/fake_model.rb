@@ -11,7 +11,7 @@ class FakeModel
   end
 
   def current_custom_rule
-    IceCube::Rule.daily(2).to_hash
+    IceCube::Rule.daily(2).hour_of_day(10).minute_of_hour(30).to_hash
   end
 
   def non_recurring_rule; 1; end

@@ -52,6 +52,14 @@ module RecurringSelect
       params[:validations][:day] = params[:validations][:day].collect(&:to_i)
     end
 
+    if params[:validations][:hour_of_day] && params[:validations][:hour_of_day].length > 0
+      params[:validations][:hour_of_day] = params[:validations][:hour_of_day].collect(&:to_i)
+    end
+
+    if params[:validations][:minute_of_hour] && params[:validations][:minute_of_hour].length > 0
+      params[:validations][:minute_of_hour] = params[:validations][:minute_of_hour].collect(&:to_i)
+    end
+
     if params[:validations][:day_of_month]
       params[:validations][:day_of_month] = params[:validations][:day_of_month].collect(&:to_i)
     end
