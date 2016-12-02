@@ -73,16 +73,19 @@ window.RecurringSelectDialog =
 
     freqInit: ->
       @freq_select = @outer_holder.find ".rs_frequency"
+      @content.find(".freq_option_section").hide();
       if @current_rule.hash? && (rule_type = @current_rule.hash.rule_type)?
         if rule_type.search(/Weekly/) != -1
           @freq_select.prop('selectedIndex', 1)
           @initWeeklyOptions()
         else if rule_type.search(/Monthly/) != -1
           @freq_select.prop('selectedIndex', 2)
+          @initMonthlyInterval()
           @initMonthlyOptions()
         else if rule_type.search(/Yearly/) != -1
           @freq_select.prop('selectedIndex', 3)
           @initYearlyOptions()
+          @initMonthlyOptions()
         else
           @initDailyOptions()
       @freq_select.on "change", @freqChanged
@@ -127,11 +130,15 @@ window.RecurringSelectDialog =
 
       section.show()
 
-    initMonthlyOptions: ->
-      section = @content.find('.monthly_options')
+    initMonthlyInterval: ->
+      section = @content.find('.monthly_interval')
       interval_input = section.find('.rs_monthly_interval')
       interval_input.val(@current_rule.hash.interval)
       interval_input.on "change keyup", @intervalChanged
+      section.show()
+
+    initMonthlyOptions: ->
+      section = @content.find('.monthly_options')
 
       @current_rule.hash.validations ||= {}
       @current_rule.hash.validations.day_of_month ||= []
@@ -160,8 +167,12 @@ window.RecurringSelectDialog =
       interval_input = section.find('.rs_yearly_interval')
       interval_input.val(@current_rule.hash.interval)
       interval_input.on "change keyup", @intervalChanged
-      section.show()
 
+      @current_rule.hash.validations ||= {}
+      @current_rule.hash.validations.month_of_year ||= {}
+      @init_months(section)
+
+      section.show()
 
     summaryInit: ->
       @summary = @outer_holder.find(".rs_summary")
@@ -201,6 +212,7 @@ window.RecurringSelectDialog =
     init_calendar_days: (section) =>
       monthly_calendar = section.find(".rs_calendar_day")
       monthly_calendar.html ""
+      monthly_calendar.append ("<input type='hidden' name='rs_calendar_day' class='form-control rs_calendar_day rs_interval' size='2' />")
       for num in [1..31]
         monthly_calendar.append (day_link = $(document.createElement("a")).text(num))
         if $.inArray(num, @current_rule.hash.validations.day_of_month) != -1
@@ -217,6 +229,7 @@ window.RecurringSelectDialog =
     init_calendar_weeks: (section) =>
       monthly_calendar = section.find(".rs_calendar_week")
       monthly_calendar.html ""
+      monthly_calendar.append ("<input type='hidden' name='rs_calendar_week' class='form-control rs_calendar_week rs_interval' size='2' />")
       row_labels = $.fn.recurring_select.texts["order"]
       cell_str = $.fn.recurring_select.texts["days_first_letter"]
 
@@ -236,6 +249,21 @@ window.RecurringSelectDialog =
       week_mode = @content.find(".monthly_rule_type_week").prop("checked")
       @content.find(".rs_calendar_week").toggle(week_mode)
       @content.find(".rs_calendar_day").toggle(!week_mode)
+
+    init_months: (section) =>
+      months_calendar = section.find(".months_names")
+      months_calendar.html ""
+      months_calendar.append ("<input type='hidden' name='rs_months_year' class='form-control rs_months_year rs_interval' size='2' />")
+
+      months = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December']
+      for month in months
+          months_calendar.append (month_link = $(document.createElement("a")).text(month))
+          index = $.inArray(month, months) + 1
+          month_link.attr("value", index)
+          if $.inArray(index, @current_rule.hash.validations.month_of_year) != -1
+            month_link.addClass("selected")
+      months_calendar.find("a").on "click tap", @monthOfYearChanged
 
 # ========================= Change callbacks ===============================
 
@@ -257,11 +285,13 @@ window.RecurringSelectDialog =
         when "Monthly"
           @current_rule.hash.rule_type = "IceCube::MonthlyRule"
           @current_rule.str = $.fn.recurring_select.texts["monthly"]
+          @initMonthlyInterval()
           @initMonthlyOptions()
         when "Yearly"
           @current_rule.hash.rule_type = "IceCube::YearlyRule"
           @current_rule.str = $.fn.recurring_select.texts["yearly"]
           @initYearlyOptions()
+          @initMonthlyOptions()
         else
           @current_rule.hash.rule_type = "IceCube::DailyRule"
           @current_rule.str = $.fn.recurring_select.texts["daily"]
@@ -318,6 +348,7 @@ window.RecurringSelectDialog =
         res
       @current_rule.hash.validations.day_of_week = {}
       @current_rule.hash.validations.day_of_month = raw_days.get()
+      $("input.rs_calendar_day").val(raw_days.get())
       @summaryUpdate()
       false
 
@@ -333,6 +364,20 @@ window.RecurringSelectDialog =
         instance = parseInt($(elm).attr("instance"))
         @current_rule.hash.validations.day_of_week[day] ||= []
         @current_rule.hash.validations.day_of_week[day].push instance
+        @week_days = JSON.stringify(@current_rule.hash.validations.day_of_week)
+      $("input.rs_calendar_week").val(@week_days)
+      @summaryUpdate()
+      false
+
+    monthOfYearChanged: (event) =>
+      $(event.currentTarget).toggleClass("selected")
+      @current_rule.hash ||= {}
+      @current_rule.hash.validations = {}
+      @current_rule.hash.validations.month_of_year = {}
+      raw_months = @content.find(".months_names a.selected").map ->
+        res = parseInt($(this).attr("value"))
+      @current_rule.hash.validations.month_of_year = raw_months.get()
+      $("input.rs_months_year").val(raw_months.get())
       @summaryUpdate()
       false
 
@@ -353,7 +398,6 @@ window.RecurringSelectDialog =
                 <option value='Yearly'>#{$.fn.recurring_select.texts["yearly"]}</option>
               </select>
             </p>
-
             <div class='daily_options freq_option_section'>
               <p class='form-inline'>
                 #{$.fn.recurring_select.texts["every"]}
@@ -390,12 +434,20 @@ window.RecurringSelectDialog =
                 <input type='text' name='rs_weekly_minute_of_hour' class='form-control rs_weekly_minute_of_hour rs_interval' size='2' />
               </p>                 
             </div>
-            <div class='monthly_options freq_option_section'>
+            <div class='yearly_options freq_option_section'>
               <p class='form-inline'>
+                #{$.fn.recurring_select.texts["every"]}
+                <input type='text' name='rs_yearly_interval' class='form-control rs_yearly_interval rs_interval' value='1' size='2' />
+                #{$.fn.recurring_select.texts["years"]}
+              </p>
+              <p class='months_names'></p>
+            </div>
+            <p class='form-inline monthly_interval freq_option_section'>
                 #{$.fn.recurring_select.texts["every"]}
                 <input type='text' name='rs_monthly_interval' class='form-control rs_monthly_interval rs_interval' value='1' size='2' />
                 #{$.fn.recurring_select.texts["months"]}:
-              </p>
+            </p>
+            <div class='monthly_options freq_option_section'>
               <p class='monthly_rule_type'>
                 <span>#{$.fn.recurring_select.texts["day_of_month"]} <input type='radio' class='monthly_rule_type_day' name='monthly_rule_type' value='true' /></span>
                 <span>#{$.fn.recurring_select.texts["day_of_week"]} <input type='radio' class='monthly_rule_type_week' name='monthly_rule_type' value='true' /></span>
@@ -408,13 +460,6 @@ window.RecurringSelectDialog =
                 :
                 <input type='text' name='rs_monthly_minute_of_hour' class='form-control rs_monthly_minute_of_hour rs_interval' size='2' />
               </p>               
-            </div>
-            <div class='yearly_options freq_option_section'>
-              <p class='form-inline'>
-                #{$.fn.recurring_select.texts["every"]}
-                <input type='text' name='rs_yearly_interval' class='form-control rs_yearly_interval rs_interval' value='1' size='2' />
-                #{$.fn.recurring_select.texts["years"]}
-              </p>
             </div>
             <p class='rs_summary'>
               <span></span>
