@@ -169,7 +169,7 @@ window.RecurringSelectDialog =
       interval_input.on "change keyup", @intervalChanged
 
       @current_rule.hash.validations ||= {}
-      @current_rule.hash.validations.month_of_year ||= {}
+      @current_rule.hash.validations.month_of_year ||= []
       @init_months(section)
 
       section.show()
@@ -342,7 +342,8 @@ window.RecurringSelectDialog =
       $(event.currentTarget).toggleClass("selected")
       @current_rule.str = null
       @current_rule.hash ||= {}
-      @current_rule.hash.validations = {}
+      @current_rule.hash.validations ||= {}
+      @current_rule.hash.validations.day_of_month = []
       raw_days = @content.find(".monthly_options .rs_calendar_day a.selected").map ->
         res = if $(this).text() == $.fn.recurring_select.texts["last_day"] then -1 else parseInt($(this).text())
         res
@@ -371,9 +372,9 @@ window.RecurringSelectDialog =
 
     monthOfYearChanged: (event) =>
       $(event.currentTarget).toggleClass("selected")
+      @current_rule.str = null
       @current_rule.hash ||= {}
-      @current_rule.hash.validations = {}
-      @current_rule.hash.validations.month_of_year = {}
+      @current_rule.hash.validations ||= {}
       raw_months = @content.find(".months_names a.selected").map ->
         res = parseInt($(this).attr("value"))
       @current_rule.hash.validations.month_of_year = raw_months.get()
