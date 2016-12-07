@@ -212,7 +212,8 @@ window.RecurringSelectDialog =
     init_calendar_days: (section) =>
       monthly_calendar = section.find(".rs_calendar_day")
       monthly_calendar.html ""
-      monthly_calendar.append ("<input type='hidden' name='rs_calendar_day' class='form-control rs_calendar_day rs_interval' size='2' />")
+      monthly_calendar.append ("<input type='text' name='rs_calendar_day' class='form-control rs_calendar_day rs_interval' size='2' />")
+      $(".rs_calendar_day input").attr("value", @current_rule.hash.validations.day_of_month)
       for num in [1..31]
         monthly_calendar.append (day_link = $(document.createElement("a")).text(num))
         if $.inArray(num, @current_rule.hash.validations.day_of_month) != -1
@@ -223,13 +224,17 @@ window.RecurringSelectDialog =
       end_of_month_link.addClass("end_of_month")
       if $.inArray(-1, @current_rule.hash.validations.day_of_month) != -1
         end_of_month_link.addClass("selected")
-
       monthly_calendar.find("a").on "click tap", @dateOfMonthChanged
 
     init_calendar_weeks: (section) =>
       monthly_calendar = section.find(".rs_calendar_week")
       monthly_calendar.html ""
       monthly_calendar.append ("<input type='hidden' name='rs_calendar_week' class='form-control rs_calendar_week rs_interval' size='2' />")
+      stringify_hash = JSON.stringify(@current_rule.hash.validations.day_of_week)
+      if stringify_hash.length > 2
+        $(".rs_calendar_week input").attr("value", stringify_hash)
+      else
+        $(".rs_calendar_week input").attr("value", "")
       row_labels = $.fn.recurring_select.texts["order"]
       cell_str = $.fn.recurring_select.texts["days_first_letter"]
 
@@ -253,7 +258,8 @@ window.RecurringSelectDialog =
     init_months: (section) =>
       months_calendar = section.find(".months_names")
       months_calendar.html ""
-      months_calendar.append ("<input type='hidden' name='rs_months_year' class='form-control rs_months_year rs_interval' size='2' />")
+      months_calendar.append ("<input type='text' name='rs_months_year' class='form-control rs_months_year rs_interval' size='2' />")
+      $(".months_names input").attr("value", @current_rule.hash.validations.month_of_year)
 
       months = ['January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December']
@@ -357,7 +363,7 @@ window.RecurringSelectDialog =
       $(event.currentTarget).toggleClass("selected")
       @current_rule.str = null
       @current_rule.hash ||= {}
-      @current_rule.hash.validations = {}
+      @current_rule.hash.validations ||= {}
       @current_rule.hash.validations.day_of_month = []
       @current_rule.hash.validations.day_of_week = {}
       @content.find(".monthly_options .rs_calendar_week a.selected").each (index, elm) =>
