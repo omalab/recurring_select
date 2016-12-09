@@ -212,7 +212,7 @@ window.RecurringSelectDialog =
     init_calendar_days: (section) =>
       monthly_calendar = section.find(".rs_calendar_day")
       monthly_calendar.html ""
-      monthly_calendar.append ("<input type='text' name='rs_calendar_day' class='form-control rs_calendar_day rs_interval' size='2' />")
+      monthly_calendar.append ("<input type='hidden' name='rs_calendar_day' class='form-control rs_calendar_day rs_interval' size='2' />")
       $(".rs_calendar_day input").attr("value", @current_rule.hash.validations.day_of_month)
       for num in [1..31]
         monthly_calendar.append (day_link = $(document.createElement("a")).text(num))
@@ -258,7 +258,7 @@ window.RecurringSelectDialog =
     init_months: (section) =>
       months_calendar = section.find(".months_names")
       months_calendar.html ""
-      months_calendar.append ("<input type='text' name='rs_months_year' class='form-control rs_months_year rs_interval' size='2' />")
+      months_calendar.append ("<input type='hidden' name='rs_months_year' class='form-control rs_months_year rs_interval' size='2' />")
       $(".months_names input").attr("value", @current_rule.hash.validations.month_of_year)
 
       months = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -341,6 +341,7 @@ window.RecurringSelectDialog =
       @current_rule.hash.validations = {}
       raw_days = @content.find(".day_holder a.selected").map -> parseInt($(this).data("value"))
       @current_rule.hash.validations.day = raw_days.get()
+      $("input.rs_day").val(raw_days.get())
       @summaryUpdate()
       false # this prevents default and propogation
 
@@ -424,6 +425,7 @@ window.RecurringSelectDialog =
                 <input type='text' name='rs_weekly_interval' class='rs_weekly_interval rs_interval form-control' value='1' size='2' />
                 #{$.fn.recurring_select.texts["weeks_on"]}:
               </p>
+              <input type='hidden' name='rs_day' class='rs_day'/>
               <div class='day_holder'>
       "
       for day_of_week in [$.fn.recurring_select.texts["first_day_of_week"]...(7 + $.fn.recurring_select.texts["first_day_of_week"])]
