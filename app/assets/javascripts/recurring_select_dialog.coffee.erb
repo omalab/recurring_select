@@ -104,6 +104,9 @@ window.RecurringSelectDialog =
         minute_of_hour_input.val(@current_rule.hash.validations.minute_of_hour[0])
       minute_of_hour_input.on "change keyup", @minuteOfHourChanged
 
+      @current_rule.hash.validations ||= {}
+      @current_rule.hash.validations.hour_of_day ||= []
+      @init_hours(section)
       section.show()
 
     initWeeklyOptions: ->
@@ -208,6 +211,22 @@ window.RecurringSelectDialog =
       @current_rule.str = data
       @summaryUpdate()
       @content.css {"width": "auto"}
+
+    init_hours: (section) =>
+      daily_hours = section.find(".daily_hours")
+      daily_hours.html ""
+      daily_hours.append ("<input type='hidden' name='rs_daily_hour_of_day' class='rs_daily_hour_of_day rs_interval form-control' size='2' />")
+      $(".rs_daily_hour_of_day input").attr("value", @current_rule.hash.validations.hour_of_day)
+
+      hours = ['1am', '2am', '3am', '4am', '5am', '6am','7am', '8am', '9am', '10am', '11am', '12am',
+               '1pm', '2pm', '3pm', '4pm', '5pm', '6pm','7pm', '8pm', '9pm', '10pm', '11pm', '12pm']
+      for hour in hours
+        daily_hours.append (hour_link = $(document.createElement("a")).text(hour))
+        index = $.inArray(hour, hours) + 1
+        hour_link.attr("value", index)
+        if $.inArray(index, @current_rule.hash.validations.hour_of_day) != -1
+          hour_link.addClass("selected")
+      daily_hours.find("a").on "click tap", @hoursOfDailyChanged
 
     init_calendar_days: (section) =>
       monthly_calendar = section.find(".rs_calendar_day")
@@ -322,7 +341,19 @@ window.RecurringSelectDialog =
       @current_rule.hash.validations.hour_of_day[0] = parseInt($(event.currentTarget).val())
       if @current_rule.hash.validations.hour_of_day[0] < 0 || @current_rule.hash.validations.hour_of_day[0] > 23 || isNaN(@current_rule.hash.validations.hour_of_day[0])
         @current_rule.hash.validations.hour_of_day=[]    
-      @summaryUpdate()  
+      @summaryUpdate()
+
+    hoursOfDailyChanged: (event) =>
+      $(event.currentTarget).toggleClass("selected")
+      @current_rule.str = null
+      @current_rule.hash ||= {}
+      @current_rule.hash.validations ||= {}
+      hours_raw = @content.find(".daily_hours a.selected").map ->
+        res = parseInt($(this).attr("value"))
+      @current_rule.hash.validations.hour_of_day = hours_raw.get()
+      $("input.rs_daily_hour_of_day").val(hours_raw.get())
+      @summaryUpdate()
+      false
 
     minuteOfHourChanged: (event) =>
       @current_rule.str = null
@@ -411,13 +442,15 @@ window.RecurringSelectDialog =
                 #{$.fn.recurring_select.texts["every"]}
                 <input type='text' name='rs_daily_interval' class='form-control rs_daily_interval rs_interval' value='1' size='2' />
                 #{$.fn.recurring_select.texts["days"]}
-              </p> 
+              </p>
+              <p class='daily_hours'></p>
               <p class='form-inline'>
                 #{$.fn.recurring_select.texts["at"]}
-                <input type='text' name='rs_daily_hour_of_day' class='rs_daily_hour_of_day rs_interval form-control' size='2' />
-                :
+                <!--<input type='text' name='rs_daily_hour_of_day' class='rs_daily_hour_of_day rs_interval form-control' size='2' />
+                : -->
                 <input type='text' name='rs_daily_minute_of_hour' class='form-control rs_daily_minute_of_hour rs_interval' size='2' />
-              </p>                        
+                minutes of selected hours
+              </p>
             </div>
             <div class='weekly_options freq_option_section'>
               <p class='form-inline'>
@@ -425,7 +458,7 @@ window.RecurringSelectDialog =
                 <input type='text' name='rs_weekly_interval' class='rs_weekly_interval rs_interval form-control' value='1' size='2' />
                 #{$.fn.recurring_select.texts["weeks_on"]}:
               </p>
-              <input type='hidden' name='rs_day' class='rs_day'/>
+              <input type='text' name='rs_day' class='rs_day'/>
               <div class='day_holder'>
       "
       for day_of_week in [$.fn.recurring_select.texts["first_day_of_week"]...(7 + $.fn.recurring_select.texts["first_day_of_week"])]
